@@ -1,6 +1,12 @@
 import java.util.Scanner;
 import java.util.Random;
 
+// TODO: User chooses dimentions of word search
+// TODO: User chooses number of words to add
+// TODO: Throw exception when words dont fit (i.e. too long, too little space based on previous placements)
+// TODO: Reset/clear the wordSearch matrix if the user wants to generate another one
+// TODO: Combine print() and showSolution()
+
 class WordSearchGenerator {
     private Scanner input; // scanner for user input
     private Random rand; // random variable
@@ -13,13 +19,14 @@ class WordSearchGenerator {
     private char[][] wordSearch; 
     private char[][] solution;
 
-    // Test array with words in it. It can do an 8 x 8 2d array
+    // TEST ARRAY with words in it. It can do an 8 x 8 2d array
     private String[] words = {"APPLE", "BANANA", "GRAPE", "ORANGE", "PEAR", "KIWI", "CHERRY", "DATES", "PLUM"};
 
-    private String[] dirtyWords; // modified array; Values have 50% of being in reverse
     private String[] userWords; // user input words
+    private String[] dirtyWords; // modified array; Values have 50% of being in reverse
 
 
+    // Constructor. Initializes the scanner, rand object, and arrays
     public WordSearchGenerator() {
         // initializing Scanner and Random
         this.input = new Scanner(System.in);
@@ -27,36 +34,37 @@ class WordSearchGenerator {
         
         // iniializing the arrays
         userWords = new String[7]; // Ammount of words in search
-        solution = new char[rows][cols];
-        wordSearch = new char[rows][cols];
+        solution = new char[rows][cols]; // Solution matrix
+        wordSearch = new char[rows][cols]; // Wordsearch matrix
     }
 
     // Starts the program
     public void start() {
         char response; // user response variable
-        
-        // intro
+
+        // intro text
         System.out.printf("s%n%s%n%n",
         "Welcome to my word search generator!",
         "This program will allow you to generate your own word search puzzle");
 
-        // char returned from intro prompt
+        // Loop continues while the user has not chosen to quit the program
         do {
-            response = menu();
+            response = menu(); // gives user a menu, returns a char and saves it
 
+            // switch case based on the menu options
             switch (response) {
                 case 'g':
                     userPrompt(); // prompts for user input of words
-                    generate();
+                    generate(); // generates the wordsearch based on the words
                     break;
                 case 'p':
-                    print();
+                    print(); // Prints the word search
                     break;
                 case 's':
-                    showSolution();
+                    showSolution(); // Shows the solution
                     break;
                 case 'q':
-                    System.out.println("Have a great day!");
+                    System.out.println("Have a great day!"); // Exit prompt
                     break;
             }
         } while (response != 'q');
@@ -78,13 +86,13 @@ class WordSearchGenerator {
         System.out.println();
     }
 
-    // This method prints out the intro to the word search
-    // returns the value 
-    public char menu() {
-        char response;
+    // This method prints out the menu to the word search
+    // returns a char value to determine which menu option will be selected
+    private char menu() {
+        char response; // placeholder for user response
         boolean repeat = false; // do we require the user to repeat their entry
 
-        // Menu
+        // Menu printout
         System.out.printf("%s%n%s%n%s%n%s%n%s%n%n",
                         "Please selet an option:",
                         "Generate a new word search (g)",
@@ -92,26 +100,30 @@ class WordSearchGenerator {
                         "Show the solution to your word search (s)",
                         "Quit the program (q)");
 
+
+        // Repeats until the user enters a proper answer
         do {
-            if (repeat) {
+            if (repeat) { // error response
                 System.out.println("Invalid Reponse. Please try again.");
             }
             repeat = true; // triggers the above statement if it's after the first runthrough
 
             // the first letter what the user inputed
-            response = input.nextLine().toLowerCase().charAt(0);
+            response = input.nextLine().toLowerCase().charAt(0); // shortens the text to one character
         } while (response != 'g' && response != 'p' && response != 's' && response != 'q');
 
         return response; // returns the char response
     }
 
-    // generates a 2d array asking for input 
-    public void generate() {
-        // two random ints based on the dimentions of the word search
+    // generates a word search based on the dimentions as well as the words given by the user
+    // This creates both the word search and it's solution
+    private void generate() {
+        // row and col will be the starting position of the word upon insertion
         int row;
         int col;
 
-        // 50% chance the words are backwards in this array
+        // converts the user's array of words into an array filled
+        // with words that have a 50% chance of being flipped
         dirtyWords = backwardsArray(userWords);
         
         // four different orientations that the word can be in
@@ -132,6 +144,7 @@ class WordSearchGenerator {
             fits = false; 
 
             // loops until the word is able to fit
+            // if the string does not fit, it randomizes it's position and orientaiton
             while (!fits){ 
                 //sets the position of the word
                 row = rand.nextInt(rows); 
@@ -149,12 +162,14 @@ class WordSearchGenerator {
             fits = false; // resets the fits booleon
         }
 
-        // copies the 2d array
+        // copies the 2d array from wordsearch to solution
+        // .clone() only works 1 array at a time.
         for (int i = 0; i < rows; i++) {
             solution[i] = wordSearch[i].clone();
         }
 
-        fill(); // fills the wordsearch and it's solution
+        // fills the wordsearch and it's solution with random char's or '*' respectively
+        fill(); 
     }
 
     // fills in the word search and it's solution
@@ -183,36 +198,35 @@ class WordSearchGenerator {
     }
 
     // checks if there is space for the word to fit
+    // it has 4 different arguements based on the orientation
     private Boolean isSpace(String word, int wordLen, int row, int col, int orientation) {
 
+        // it has 4 different arguements based on the orientation
+        // PLEASE LOOK AT ORIENTATION 0 FOR COMMENTS
         if (orientation == 0) { // HORIZONTAL
-            if (((cols - 1) - col) >= wordLen) {
-                // secondly determines if word conficts with whatever is already down
-                for (int i = 0; i < wordLen; i++){
-                    // returns false if the value is not null or not the same char in the word as the word search
+            if (((cols - 1) - col) >= wordLen) { // checks for horizontal space
+                for (int i = 0; i < wordLen; i++){ // iterates through word
+                    // checks if the spot is not empty and if the char at that position
+                    // does not match the spot on the word search
                     if (wordSearch[row][i+col] != 0 && wordSearch[row][col+i] != word.charAt(i)) {
-                        return false;
+                        return false; // returns false if the spot is taken and the letters do not match
                     }
                 }
-                // returns true if it passes the test
+                // returns true if it fits based on space AND
+                // if does not encounter a letter that would clash with the placement/orientation of the word
                 return true;
             } else {
-                // if it doesn't fit based on size of string and position
-                return false;
+                return false; // returns false if it does not fit based on space
             }
         } else if (orientation == 1) { // VERTICAL
             if (((rows - 1) - row) >= wordLen) {
-                // secondly determines if word conficts with whatever is already down
                 for (int i = 0; i < wordLen; i++){
-                    // returns false if the value is not null or not the same char in the word as the word search
                     if (wordSearch[row+i][col] != 0 && wordSearch[row+i][col] != word.charAt(i)) {
                         return false;
                     }
                 }
-                // returns true if it passes the test
                 return true;
             } else {
-                // if it doesn't fit based on size of string and position
                 return false;
             }
         } else if (orientation == 2) { // DIAGONAL POSITIVE
@@ -228,46 +242,45 @@ class WordSearchGenerator {
             }
         } else if (orientation == 3) { // DIAGONAL NEGATIVE
             if (((rows - 1) - row) >= wordLen && ((cols - 1) - col) >= wordLen) {
-                // secondly determines if word conficts with whatever is already down
                 for (int i = 0; i < wordLen; i++){
-                    // returns false if the value is not null or not the same char in the word as the word search
                     if (wordSearch[row+i][col+i] != 0 && wordSearch[row+i][col+i] != word.charAt(i)) {
                         return false;
                     }
                 }
-                // returns true if it passes the test
                 return true;
             } else {
-                // if it doesn't fit based on size of string and position
                 return false;
             }
         }
         
-        return false;
+        return false; // returns false if it doesn't enter in the loop
     }   
 
     // inserts word into wordsearch
+    // it has 4 different arguements based on the orientation
     private void insert(String word, int wordLen, int row, int col, int orientation) {
 
+        // it has 4 different arguements based on the orientation
+        // PLEASE LOOK AT ORIENTATION 0 FOR COMMENTS
         if (orientation == 0) {
             // Horizontal words
-            for (int i = 0; i < wordLen; i++) {
-            wordSearch[row][col + i] = word.charAt(i);
+            for (int i = 0; i < wordLen; i++) { // iterates through the string based on it's lenght
+                wordSearch[row][col + i] = word.charAt(i); // adds char to word seach based on orientation
             }
         } else if (orientation == 1) {
             // Vertical words
             for (int i = 0; i < wordLen; i++) {
-            wordSearch[row + i][col] = word.charAt(i);
+                wordSearch[row + i][col] = word.charAt(i);
             }
         } else if (orientation == 2) {
             // Diagonal pos
             for (int i = 0; i < wordLen; i++) {
-            wordSearch[row - i][col + i] = word.charAt(i);
+                wordSearch[row - i][col + i] = word.charAt(i);
             }
         } else if (orientation == 3) {
             // Diagonal neg
             for (int i = 0; i < wordLen; i++) {
-            wordSearch[row + i][col + i] = word.charAt(i);
+                wordSearch[row + i][col + i] = word.charAt(i);
             }
         }   
     }
@@ -275,13 +288,16 @@ class WordSearchGenerator {
     // reverses the word
     public String backwards(String word) {
         String reverseWord = ""; 
+        // iterates from the last char to the first of the string
+        // to reverse the word given
         for (int i = word.length()-1; i >= 0; i--){
-            reverseWord += word.charAt(i);
+            reverseWord += word.charAt(i); 
         }
-        return reverseWord;
+        return reverseWord; // returns the reversed word
     }
 
     // randomized whether the words in the array are backwards
+    // this method used backwards() for every string in the array
     public String[] backwardsArray(String[] clean) {
         String[] dirty = new String[clean.length]; // new array w/ same length
         int reverse; // placeholder for random number
@@ -295,13 +311,15 @@ class WordSearchGenerator {
                 dirty[i] = clean[i];
             }
         }
-        return dirty;
+        return dirty; // returns the "dirty" array. Dirty
     }
     
+    // I AM NOW REALIZING THAT I COULD HAVE MADE THIS ONE METHOD
     // prints the word search
     public void print() {
         System.out.println("Here is your word search!\nHave fun!");
 
+        // iterates through the matrix and prints the char with spaces " " in between
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < cols; j++) {
                 System.out.print(" " + wordSearch[i][j] + " ");
@@ -315,6 +333,7 @@ class WordSearchGenerator {
     public void showSolution() {
         System.out.println("Here is your solution!");
 
+        // iterates through the solution matrix and prints the char with spaces " " in between
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < cols; j++) {
                 System.out.print(" " + solution[i][j] + " ");
