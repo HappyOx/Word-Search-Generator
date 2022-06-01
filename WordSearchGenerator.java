@@ -286,7 +286,7 @@ class WordSearchGenerator {
     }
 
     // reverses the word
-    public String backwards(String word) {
+    private String backwards(String word) {
         String reverseWord = ""; 
         // iterates from the last char to the first of the string
         // to reverse the word given
@@ -298,7 +298,7 @@ class WordSearchGenerator {
 
     // randomized whether the words in the array are backwards
     // this method used backwards() for every string in the array
-    public String[] backwardsArray(String[] clean) {
+    private String[] backwardsArray(String[] clean) {
         String[] dirty = new String[clean.length]; // new array w/ same length
         int reverse; // placeholder for random number
 
@@ -316,7 +316,7 @@ class WordSearchGenerator {
     
     // I AM NOW REALIZING THAT I COULD HAVE MADE THIS ONE METHOD
     // prints the word search
-    public void print() {
+    private void print() {
         System.out.println("Here is your word search!\nHave fun!");
 
         // iterates through the matrix and prints the char with spaces " " in between
@@ -330,7 +330,7 @@ class WordSearchGenerator {
     }
 
     // prints solution with *'s in place of the random letters
-    public void showSolution() {
+    private void showSolution() {
         System.out.println("Here is your solution!");
 
         // iterates through the solution matrix and prints the char with spaces " " in between
